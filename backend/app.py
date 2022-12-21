@@ -3,7 +3,7 @@ import pickle
 
 app = Flask(__name__)
 
-model = pickle.load(open('../crop_reommendation_model.pkl', 'rb'))
+model = pickle.load(open('./model/crop_reommendation_model.pkl', 'rb'))
 
 @app.route('/crops', methods = ['POST'])
 def cropRecommender():
