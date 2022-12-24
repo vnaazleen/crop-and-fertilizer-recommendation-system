@@ -3,6 +3,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { Alert, Button, TextField, Box } from '@mui/material';
 
+import './CropRecommender.css';
+
 const URL = "http://127.0.0.1:5000/crops"
 
 export default function CropRecommender() {
@@ -33,7 +35,7 @@ export default function CropRecommender() {
     }
 
     return (
-        <div>
+        <div className='CropRecommender'>
             <Box
               component="form"
               sx={{
@@ -41,10 +43,11 @@ export default function CropRecommender() {
                 }}
               autoComplete="off"
               onSubmit={e => handleSubmit(e)}
+              className="form"
             >
                 <div>
                     <center>
-                        <h1>Crop Recommendation System</h1>
+                        <h1 className='heading'>🌾 Crop Recommendation System</h1>
                         <TextField
                             required
                             id="N"
@@ -112,8 +115,11 @@ export default function CropRecommender() {
                                 step: "any"
                             }}
                         />
+
                         <br />
-                        <Button variant="contained" color="success" type="submit">Submit</Button>
+                        <br />
+
+                        <Button className='submitBtn' variant="contained" color="success" type="submit">Submit</Button>
                     </center>
                 </div>
 
