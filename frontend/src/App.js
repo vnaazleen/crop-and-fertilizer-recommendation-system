@@ -1,8 +1,8 @@
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
 
-import Home from './Components/Home';
-import CropRecommender from './Components/CropRecommender';
+import Home from './Components/Home/Home';
+import CropRecommender from './Components/CropRecommender/CropRecommender';
 
 function App() {
   return (
