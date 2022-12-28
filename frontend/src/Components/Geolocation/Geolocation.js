@@ -14,10 +14,30 @@ export default function Geolocation() {
 
     const [lat, setLat] = useState(0)
     const [lon, setLon] = useState(0)
+    const [data, setData] = useState()
 
     useEffect(() => {
         setStates(State.getStatesOfCountry("IN"))
     }, [country])
+
+    const fetchTemperture = async () => {
+        console.log(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
+        await fetch(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
+            .then(res => res.json())
+            .then(result => {
+                setData(result)
+            })
+    }
+
+    const updateState = (latitude, longitude) => {
+
+        console.log("Latitude is :", latitude)
+        console.log("Longitude is :", longitude)
+
+        setLat(latitude)
+        setLon(longitude)
+        fetchTemperture()
+    }
 
     const options = {
         enableHighAccuracy: false,
@@ -26,13 +46,7 @@ export default function Geolocation() {
     }
 
     const successCallback = (position) => {
-        console.log(position)
-
-        console.log("Latitude is :", position.coords.latitude)
-        console.log("Longitude is :", position.coords.longitude)
-
-        setLat(position.coords.latitude)
-        setLon(position.coords.longitude)
+        updateState(position.coords.latitude, position.coords.longitude)
     }
     
     const errorCallback = (error) => {
@@ -59,10 +73,7 @@ export default function Geolocation() {
 
         cities.forEach((c) => {
             if (c.name === event.target.value) {
-                setLat(c.latitude)
-                setLon(c.longitude)
-
-                console.log(c.latitude, c.longitude)
+                updateState(c.latitude, c.longitude)
             }
         })
     }
@@ -112,8 +123,17 @@ export default function Geolocation() {
             </div>
 
             <div className='latLong'>
-                    <p><b>Latitude: </b> {lat}</p>
-                    <p><b>Longitude: </b> {lon}</p>
+                    {   data 
+                    
+                        && 
+                    
+                        <div>
+                            <p><b>Latitude: </b> {lat}</p>
+                            <p><b>Longitude: </b> {lon}</p>
+                            <br />
+                            <p><b>Temperature: </b> {data.main.temp}°C</p>
+                        </div>
+                    }
             </div>
 
         </div>
