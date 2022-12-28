@@ -132,6 +132,7 @@ export default function Geolocation() {
                             <p><b>Longitude: </b> {lon}</p>
                             <br />
                             <p><b>Temperature: </b> {data.main.temp}°C</p>
+                            <p><b>Humidity: </b> {data.main.humidity}%</p>
                         </div>
                     }
             </div>
