@@ -1,6 +1,7 @@
 import './Home.css'
 
 import { Button } from '@mui/material';
+import { grey } from '@mui/material/colors';
 
 export default function Home() {
     return (
@@ -9,24 +10,29 @@ export default function Home() {
             <Button 
              sx={{ color: 'white', 
                    borderColor: 'white',
+                   fontSize:'20px',
+                   background:'#252525a6',
                    "&:hover": { borderColor: "green", backgroundColor: "green" } 
                 }}
              className="Btn1" 
              variant="outlined"
              href="/crop-recommender"
             >
-                Crop Recommender
+                <b>Crop Recommender</b>
             </Button>
                 &nbsp; &nbsp;
             <Button 
              sx={{ color: 'white', 
                     borderColor: 'white',
+                    fontSize:'20px',
+                    background:'#252525a6',
                     "&:hover": { borderColor: "green", backgroundColor: "green" } 
                 }}
              className="Btn1" 
              variant="outlined"
+             href="/fertilizer-recommender"
             >
-                Fertilizer Recommender
+                <b>Fertilizer Recommender</b>
             </Button>
             </div>
         </div>
