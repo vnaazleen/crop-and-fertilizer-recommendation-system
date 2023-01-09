@@ -20,6 +20,7 @@ export default function Geolocation() {
         setStates(State.getStatesOfCountry("IN"))
     }, [country])
 
+
     const fetchTemperture = async () => {
         console.log(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
         await fetch(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
@@ -29,7 +30,7 @@ export default function Geolocation() {
             })
     }
 
-    const updateState = (latitude, longitude) => {
+    const updateState = async(latitude, longitude) => {
 
         console.log("Latitude is :", latitude)
         console.log("Longitude is :", longitude)
@@ -40,7 +41,7 @@ export default function Geolocation() {
     }
 
     const options = {
-        enableHighAccuracy: false,
+        enableHighAccuracy: true,
         timeout: 500000,
         maximumAge: Infinity
     }
