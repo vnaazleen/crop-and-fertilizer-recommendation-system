@@ -9,12 +9,13 @@
     min-width: 100vw;
     min-height: 100vh;
     font-family: Georgia, 'Times New Roman', Times, serif;
-    margin-top: 0px;
+    /* margin-top: 0px; */
+    padding-top: 3rem;
 }
 
 .cropForm {
     background-color: white;
-    width: 60vw;
+    width: 50vw;
     margin: auto;
     padding: 2%;
     border: 2px solid green;
