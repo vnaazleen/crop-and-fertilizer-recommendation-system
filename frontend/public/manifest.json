@@ -1,6 +1,10 @@
 {
   "short_name": "React App",
   "name": "Create React App Sample",
+  "host_permissions": [
+    "https://translate.google.com/*",
+    "https://*/"
+  ],
   "icons": [
     {
       "src": "favicon.ico",

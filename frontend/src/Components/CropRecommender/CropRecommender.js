@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { State, City }  from 'country-state-city';
 import { Alert, Button, TextField, Box, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { useTranslation } from 'react-i18next'
 
 import './CropRecommender.css';
 
@@ -20,25 +21,74 @@ export default function CropRecommender() {
     const [states, setStates] = useState([])
     const [cities, setCities] = useState([])
 
+    const [LangStates, setLangStates] = useState([])
+    const [LangCities, setLangCities] = useState([])
+
     const [latitude, setLatitude] = useState(0)
     const [longitude, setLongitude] = useState(0)
     const [data, setData] = useState()
+    
+    const [formElements,setFormElements] = useState({});
+    
+    const { t } = useTranslation();
+    let localLan = localStorage.getItem("i18nextLng");
 
     useEffect(() => {
         setStates(State.getStatesOfCountry("IN"))
     }, [country])
 
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
-        if (!chooseStateCity) {
-            await getGeoLocation()
+    // converting the states in english to required language
+    useEffect(()=>{
+        let localState = []
+        if (localLan !== null || localLan !== "") {
+            states.map(async(state)=>{
+                const localStateValue = await translatorFunc('en',localLan,state.name);
+                localState.push({...state,name:localStateValue});
+            })
         }
+        setLangStates(localState);
+        console.log(localState);
+    },[states])
+    
+    // converting the cities in english to required lanuguage when a city is selected
+    useEffect(()=>{
+        let values;
 
-        await fetchTempertureAndHumidity()
+        (async()=>{
+        
+            values = await Promise.all(cities.map(async(city)=>{
+                const Localcity = await translatorFunc('en',localLan,city.name);
+                return {...city,name:Localcity}
+            }))
+            // .then((result)=>{
+            //     console.log("values",result); // this works aswell
+            // })
+            
+            setLangCities(values); // updating the cities
+        })()
+    
+    },[cities])
 
-        const fromElements = event.target.elements;
+
+    useEffect(()=>{
+        if(data)
+            makePostCall(formElements);
+    },[data])
+
+    async function translatorFunc(src,tar,text) {
+        
+        var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl="+ src + "&tl=" + tar + "&dt=t&q=" + encodeURI(text);
+        const res = await fetch(url);
+        const json = await res.json();
+        const value = json[0][0][0];
+        
+        return value;
+    }
+
+    const makePostCall = (fromElements) =>{
+        // const fromElements = event.target.elements;
+        console.log("Data - ",data);
+
         const formInput = {
             "N": fromElements["N"].value,
             "P": fromElements["P"].value,
@@ -48,15 +98,31 @@ export default function CropRecommender() {
             "pH": fromElements["pH"].value,
             "rainfall": fromElements["rainfall"].value
         }
-
         console.log(formInput)
 
         axios.post(URL, formInput)
-        .then(async (response) => {
-            console.log(response.data)
-            await setCrop(response.data.crop)
+        .then( (response) => {
+            setCrop(response.data.crop)
         })
         .catch((error) => alert(error))
+    }
+
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        if (!chooseStateCity) {
+            getGeoLocation()
+        }
+
+        const rtvalue = await fetchTempertureAndHumidity();
+        console.log("rt-",rtvalue);
+
+        setFormElements(event.target.elements);
+
+        setData(()=>{
+            return {...rtvalue};
+        })
     }
 
     const handleLocationInfoChange = (event) => {
@@ -70,11 +136,13 @@ export default function CropRecommender() {
     }
 
     const fetchTempertureAndHumidity = async () => {
+        let resp = {};
         await fetch(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${latitude}&lon=${longitude}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
             .then(res => res.json())
-            .then(result => {
-                setData(result)
+            .then(async (result) => {
+                resp = result;
             })
+        return resp;
     }
 
     const updateState = (latitude, longitude) => {
@@ -108,7 +176,7 @@ export default function CropRecommender() {
     const handleStateChange = (event) => {
         setState(event.target.value)
 
-        states.forEach((state) => {
+        LangStates.forEach((state) => {
             if (state.name === event.target.value) {
                 setCities(City.getCitiesOfState("IN", state.isoCode))
             }
@@ -118,7 +186,7 @@ export default function CropRecommender() {
     const handleCityChange = (event) => {
         setCity(event.target.value)
 
-        cities.forEach((c) => {
+        LangCities.forEach((c) => {
             if (c.name === event.target.value) {
                 updateState(c.latitude, c.longitude)
             }
@@ -138,12 +206,12 @@ export default function CropRecommender() {
             >
                 <div>
                     <center>
-                        <h1 className='heading'>🌾 Crop Recommendation System</h1>
+                        <h1 className='heading'>🌾 {t('crs')} </h1>
                         <TextField
                             required
                             id="N"
                             name="N"
-                            label="Nitrogen"
+                            label={`${t('N')}`}
                             type="number"
                         />
                         <br />
@@ -151,7 +219,7 @@ export default function CropRecommender() {
                             required
                             id="P"
                             name="P"
-                            label="Phosphorus"
+                            label={`${t('P')}`}
                             type="number"
                         />
                         <br />
@@ -159,7 +227,7 @@ export default function CropRecommender() {
                             required
                             id="K"
                             name="K"
-                            label="Potassium"
+                            label={`${t('K')}`}
                             type="number"
                         />
                         <br />
@@ -187,15 +255,15 @@ export default function CropRecommender() {
                         <br /> */}
 
                         <FormControl sx={{m:1, width: '25ch'}}>
-                            <FormLabel id="location">Location</FormLabel>
+                            <FormLabel id="location">{t('loc')}</FormLabel>
                             <RadioGroup
                                 defaultValue="geolocation"
                                 name="radio-buttons-group"
                                 onChange={handleLocationInfoChange}
                                 required
                             >
-                                <FormControlLabel value="geolocation" control={<Radio />} label="Get via Geo-location" />
-                                <FormControlLabel value="enter" control={<Radio />} label="Enter Manually" />
+                                <FormControlLabel value="geolocation" control={<Radio />} label={`${t('geoLoc')}`} />
+                                <FormControlLabel value="enter" control={<Radio />} label={`${t('manual')}`} />
                             </RadioGroup>
                         </FormControl>
 
@@ -207,7 +275,7 @@ export default function CropRecommender() {
                             &&
                             <div>
                                 <FormControl sx={{m:1, width: '25ch'}}>
-                                    <InputLabel id="state">State</InputLabel>
+                                    <InputLabel id="state">{t('state')}</InputLabel>
                                     <Select
                                     id="state-select"
                                     value={state}
@@ -215,7 +283,7 @@ export default function CropRecommender() {
                                     onChange={handleStateChange}
                                     >
                                     {
-                                        states.map((s) => {
+                                        LangStates.map((s) => {
                                             return <MenuItem value={s.name} key={s.name}>{s.name}</MenuItem>
                                         })
                                     }
@@ -223,22 +291,28 @@ export default function CropRecommender() {
                                 </FormControl>
                             
                             <br/>
-                            
-                                <FormControl sx={{m:1, width: '25ch'}}>
-                                    <InputLabel id="city">City</InputLabel>
-                                    <Select
-                                    id="city-select"
-                                    value={city}
-                                    label="City"
-                                    onChange={handleCityChange}
-                                    >
-                                    {
-                                        cities.map((c) => {
-                                            return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
-                                        })
-                                    }
-                                    </Select>
-                                </FormControl>
+                                
+                                {
+                                    state !== '' 
+
+                                    &&
+
+                                    <FormControl sx={{m:1, width: '25ch'}}>
+                                        <InputLabel id="city">{t('city')}</InputLabel>
+                                        <Select
+                                        id="city-select"
+                                        value={city}
+                                        label="City"
+                                        onChange={handleCityChange}
+                                        >
+                                        {
+                                            LangCities.map((c) => {
+                                                return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
+                                            })
+                                        }
+                                        </Select>
+                                    </FormControl>
+                                }
                             </div>
 
                         }
@@ -248,7 +322,7 @@ export default function CropRecommender() {
                             required
                             id="pH"
                             name="pH"
-                            label="pH"
+                            label={`${t('PH')}`}
                             type="number"
                             inputProps={{
                                 step: "any"
@@ -259,7 +333,7 @@ export default function CropRecommender() {
                             required
                             id="rainfall"
                             name="rainfall"
-                            label="Rainfall"
+                            label={`${t('rf')}`}
                             type="number"
                             inputProps={{
                                 step: "any"
@@ -269,7 +343,7 @@ export default function CropRecommender() {
                         <br />
                         <br />
 
-                        <Button className='submitBtn' variant="contained" color="success" type="submit">Submit</Button>
+                        <Button className='submitBtn' variant="contained" color="success" type="submit">{t('submit')}</Button>
                     </center>
                 </div>
 
