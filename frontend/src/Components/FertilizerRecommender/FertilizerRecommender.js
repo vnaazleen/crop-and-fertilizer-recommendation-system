@@ -4,6 +4,7 @@ import axios from 'axios';
 import { State, City }  from 'country-state-city';
 import { Alert, Button, TextField, Box, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useTranslation } from 'react-i18next'
+import FertilizerImage from '../images/fertilizer.png';
 
 
 import './FertilizerRecommender.css';
@@ -228,7 +229,7 @@ export default function FertilizerRecommender() {
             
                 <div>
                     <center>
-                        <h1 className='Fheading'>🌾 {t('frs')} </h1>
+                        <h1 className='Fheading'><img src={FertilizerImage}></img> {t('frs')} </h1>
                         <TextField
                             required
                             id="N"
@@ -387,7 +388,7 @@ export default function FertilizerRecommender() {
                         </div>
                         <br />
 
-                        <Button className='FsubmitBtn' variant="contained" color="success" type="submit">{t('submit')}</Button>
+                        <Button className='FsubmitBtn' variant="contained" color="error" type="submit">{t('submit')}</Button>
                     </center>
                 </div>
                 <br/>

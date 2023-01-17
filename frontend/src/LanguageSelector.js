@@ -59,7 +59,7 @@ function LanguageSelector() {
           position: "absolute",
           bottom: "5%",
           right: "5%",
-          width: "10rem",
+          width: "12rem",
           fontSize: "2rem",
           color: "white",
           borderColor: "white",
