@@ -5,8 +5,6 @@ import { initReactI18next } from "react-i18next";
 
 
 const loadPath = `https://api.i18nexus.com/project_resources/translations/{{lng}}/{{ns}}.json?api_key=${process.env.REACT_APP_LANGUAGE_API_KEY}`;
-console.log(loadPath);
-console.log(process.env.REACT_APP_LANGUAGE_API_KEY);
 
 i18next
   .use(HttpBackend)

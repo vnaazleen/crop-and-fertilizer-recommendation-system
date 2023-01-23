@@ -42,9 +42,9 @@ export default function FertilizerRecommender() {
 
 
     // const soilTypes = ["Black", "Clayey", "Loamy", "Red", "Sandy"];
-    const soilTypes = [t('blk'),t('cy'),t('ly'),t('rd'),t('sdy')]
+    const soilTypes = [t('Black'),t('Clayey'),t('Loamy'),t('Red'),t('Sandy')]
     // const cropTypes = ["Barley","Cotton","Ground Nuts","Maize","Millets","Oil seeds","Paddy","Pulses","Sugarcane","Tobacco", "Wheat"];
-    const cropTypes = [t('bry'),t('ctn'),t('gnuts'),t('maize'),t('millets'),t('osds'),t('pdy'),t('pulses'),t('sugarcane'),t('tobacco'),t('wheat')]
+    const cropTypes = [t('Barley'),t('Cotton'),t('Ground Nuts'),t('Maize'),t('Millets'),t('Oil seeds'),t('Paddy'),t('Pulses'),t('Sugarcane'),t('Tobacco'),t('Wheat')]
     const fertilizers=  ["10-26-26","14-35-14","17-17-17","20-20","28-28","DAP","Urea"]
 
 
@@ -69,13 +69,14 @@ export default function FertilizerRecommender() {
     // converting the cities in english to required lanuguage when a city is selected
     useEffect(()=>{
         let values;
-
         (async()=>{
         
             values = await Promise.all(cities.map(async(city)=>{
                 const Localcity = await translatorFunc('en',localLan,city.name);
                 return {...city,name:Localcity}
-            }))
+            })).catch((err)=>{
+                return err + " Mainly due to Internet Issue! ";
+            })
             // .then((result)=>{
             //     console.log("values",result); // this works aswell
             // })
@@ -91,14 +92,27 @@ export default function FertilizerRecommender() {
             makePostCall(formElements);
     },[data]);
 
+    const handleError = (err) => {
+        console.warn(err, " Mainly due to Internet Issue! ");
+    }
+
     async function translatorFunc(src,tar,text) {
         
         var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl="+ src + "&tl=" + tar + "&dt=t&q=" + encodeURI(text);
-        const res = await fetch(url);
-        const json = await res.json();
-        const value = json[0][0][0];
+        try
+        {
+            const res = await (fetch(url).catch(handleError));
+            const json = await (res.json().catch(handleError));
+            const value = json[0][0][0];
+            return value;
+        }
+        catch
+        {
+            console.warn("Internet Issue");
+            return [];
+        }
         
-        return value;
+        
     }
     
     const makePostCall = (fromElements) =>{
@@ -195,7 +209,10 @@ export default function FertilizerRecommender() {
     const handleStateChange = (event) => {
         setState(event.target.value)
         console.log(" state changed ");
-        LangStates.forEach((state) => {
+        let checkStates = []
+        LangStates.length != 0 ? checkStates = LangStates : checkStates = states
+       
+        checkStates.forEach((state) => {
             if (state.name === event.target.value) {
                 setCities(City.getCitiesOfState("IN", state.isoCode))
             }
@@ -229,12 +246,12 @@ export default function FertilizerRecommender() {
             
                 <div>
                     <center>
-                        <h1 className='Fheading'><img src={FertilizerImage}></img> {t('frs')} </h1>
+                        <h1 className='Fheading'><img src={FertilizerImage}></img> {t('Fertilizer Recommendation System')} </h1>
                         <TextField
                             required
                             id="N"
                             name="N"
-                            label={`${t('N')}`}
+                            label={`${t('Nitrogen')}`}
                             type="number"
                         />
                         <br />
@@ -242,7 +259,7 @@ export default function FertilizerRecommender() {
                             required
                             id="P"
                             name="P"
-                            label={`${t('P')}`}
+                            label={`${t('Phosphorus')}`}
                             type="number"
                         />
                         <br />
@@ -250,7 +267,7 @@ export default function FertilizerRecommender() {
                             required
                             id="K"
                             name="K"
-                            label={`${t('K')}`}
+                            label={`${t('Potassium')}`}
                             type="number"
                         />
                         <br />
@@ -278,15 +295,15 @@ export default function FertilizerRecommender() {
                         <br /> */}
 
                         <FormControl sx={{m:1, width: '25ch'}}>
-                            <FormLabel id="location">{t('loc')}</FormLabel>
+                            <FormLabel id="location">{t('Location')}</FormLabel>
                             <RadioGroup
                                 defaultValue="geolocation"
                                 name="radio-buttons-group"
                                 onChange={handleLocationInfoChange}
                                 required
                             >
-                                <FormControlLabel value="geolocation" control={<Radio />} label={`${t('geoLoc')}`} />
-                                <FormControlLabel value="enter" control={<Radio />} label={`${t('manual')}`} />
+                                <FormControlLabel value="geolocation" control={<Radio />} label={`${t('Get via Geo-location')}`} />
+                                <FormControlLabel value="enter" control={<Radio />} label={`${t('Enter Manually')}`} />
                             </RadioGroup>
                         </FormControl>
 
@@ -297,17 +314,22 @@ export default function FertilizerRecommender() {
                             &&
                             <div>
                                 <FormControl sx={{m:1, width: '25ch'}}>
-                                    <InputLabel id="state">{t('state')}</InputLabel>
+                                    <InputLabel id="state">{t('State')}*</InputLabel>
                                     <Select
+                                    required
                                     id="state-select"
                                     value={state}
                                     label="State"
                                     onChange={handleStateChange}
                                     >
                                     {
-                                        LangStates.map((s) => {
-                                            return <MenuItem value={s.name} key={s.name}>{s.name}</MenuItem>
-                                        })
+                                        LangStates.length != 0 ?
+                                            LangStates.map((s) => {
+                                                return <MenuItem value={s.name} key={s.name}>{s.name}</MenuItem>
+                                            }) :
+                                            states.map((s) => {
+                                                return <MenuItem value={s.name} key={s.name}>{s.name}</MenuItem>
+                                            })
                                     }
                                     </Select>
                                 </FormControl>
@@ -318,18 +340,24 @@ export default function FertilizerRecommender() {
                                 state !== ""
                                 &&
                                 <FormControl sx={{m:1, width: '25ch'}}>
-                                    <InputLabel id="city">{t('city')}</InputLabel>
+                                    <InputLabel id="city">{t('City')}*</InputLabel>
                                     <Select
+                                    required
                                     id="city-select"
                                     value={city}
                                     label="City"
                                     onChange={handleCityChange}
                                     >
-                                    {
-                                        LangCities.map((c) => {
-                                            console.log(c);
-                                            return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
-                                        })
+                                    {   
+                                        LangCities.length != 0 ?
+                                            LangCities.map((c) => {
+                                                console.log(c);
+                                                return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
+                                            }) : 
+                                            cities.map((c) => {
+                                                console.log(c);
+                                                return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
+                                            })
                                     }
                                     </Select>
                                 </FormControl>
@@ -342,7 +370,7 @@ export default function FertilizerRecommender() {
                             required
                             id="moisture"
                             name="moisture"
-                            label={`${t('mos')}`}
+                            label={`${t('Moisture')}`}
                             type="number"
                             inputProps={{
                                 step: "any"
@@ -351,8 +379,9 @@ export default function FertilizerRecommender() {
                         <br />
 
                         <FormControl sx={{m:1, width: '25ch'}}>
-                            <InputLabel id="soilType">{t('st')}</InputLabel>
+                            <InputLabel id="soilType">{t('Soil Type')}*</InputLabel>
                             <Select
+                                required
                                 id="select-soilType"
                                 value={soilType}
                                 name="soilType"
@@ -368,8 +397,9 @@ export default function FertilizerRecommender() {
                         </FormControl>
                         <br/>
                         <FormControl sx={{m:1, width: '25ch'}}>
-                            <InputLabel id="cropType">{t('ct')}</InputLabel>
+                            <InputLabel id="cropType">{t('Crop Type')}*</InputLabel>
                             <Select
+                                required
                                 id="select-cropType"
                                 value={cropType}
                                 name="cropType"
@@ -388,7 +418,7 @@ export default function FertilizerRecommender() {
                         </div>
                         <br />
 
-                        <Button className='FsubmitBtn' variant="contained" color="error" type="submit">{t('submit')}</Button>
+                        <Button className='FsubmitBtn' variant="contained" color="error" type="submit">{t('Submit')}</Button>
                     </center>
                 </div>
                 <br/>
@@ -396,7 +426,7 @@ export default function FertilizerRecommender() {
                     {
                         fertilizer != -1
                         &&
-                        <Alert severity="success">Recommended Fertilizer is <b>{fertilizers[fertilizer]}</b></Alert>
+                        <Alert severity="success">{t('Recommended Fertilizer is')} <b>{fertilizers[fertilizer]}</b></Alert>
                     }
                 </div>
                 
