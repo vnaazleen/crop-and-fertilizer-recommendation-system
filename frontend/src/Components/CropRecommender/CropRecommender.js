@@ -54,11 +54,12 @@ export default function CropRecommender() {
         if (localLan !== null || localLan !== "") {
             states.map(async(state)=>{
                 const localStateValue = await translatorFunc('en',localLan,state.name);
-                localState.push({...state,name:localStateValue});
+                // console.log(localStateValue);
+                localState.push({...state,name:(Array.isArray(localStateValue) && !localStateValue.length)?state.name:localStateValue});
             })
         }
         setLangStates(localState);
-        console.log(localState);
+        // console.log(localState);
     },[states])
     
     // converting the cities in english to required lanuguage when a city is selected
@@ -69,7 +70,7 @@ export default function CropRecommender() {
         
             values = await Promise.all(cities.map(async(city)=>{
                 const Localcity = await translatorFunc('en',localLan,city.name);
-                return {...city,name:Localcity}
+                return {...city,name:(Array.isArray(Localcity) && !Localcity.length)?city.name:Localcity}
             })).catch((err)=>{
                 return err + " Mainly due to Internet Issue! ";
             })
@@ -110,16 +111,16 @@ export default function CropRecommender() {
 
     const makePostCall = (fromElements) =>{
         // const fromElements = event.target.elements;
-        console.log("Data - ",data);
+        // console.log("Data - ",data);
 
         const formInput = {
-            "N": fromElements["N"].value,
-            "P": fromElements["P"].value,
-            "K": fromElements["K"].value,
-            "temperature": data.main.temp,
-            "humidity": data.main.humidity,
-            "pH": fromElements["pH"].value,
-            "rainfall": fromElements["rainfall"].value
+            "N": Number(fromElements["N"].value),
+            "P": Number(fromElements["P"].value),
+            "K": Number(fromElements["K"].value),
+            "temperature": data.temp,
+            "humidity": data.humid,
+            "pH": Number(fromElements["pH"].value),
+            "rainfall": Number(fromElements["rainfall"].value)
         }
         console.log(formInput)
 
@@ -139,7 +140,7 @@ export default function CropRecommender() {
         }
 
         const rtvalue = await fetchTempertureAndHumidity();
-        console.log("rt-",rtvalue);
+        // console.log("rt-",rtvalue);
 
         setFormElements(event.target.elements);
 
@@ -155,17 +156,38 @@ export default function CropRecommender() {
             setChooseStateCity(true)
         }
 
-        console.log(event.target.value)
+        // console.log(event.target.value)
     }
 
+    const getAvgTemperatureAndHumidity = async () =>{
+        
+        let avgTemp = [];
+        let avgHumidity=[];
+        const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
+
+        let todayDate = new Date();
+        let endDate = new Date();
+        endDate.setMonth(todayDate.getMonth()+3);
+
+        for (let index = 1; index <= 10; index++) {
+        
+            todayDate.setFullYear(todayDate.getFullYear()-1)
+            endDate.setFullYear(endDate.getFullYear()-1)
+        
+            await fetch(`https://archive-api.open-meteo.com/v1/era5?latitude=${latitude}&longitude=${longitude}&start_date=${todayDate.toISOString().slice(0, 10)}&end_date=${endDate.toISOString().slice(0, 10)}&hourly=temperature_2m,relativehumidity_2m`)
+                .then(res => res.json())
+                .then(async (result) => {
+                    avgTemp.push(average(result.hourly.temperature_2m));
+                    avgHumidity.push(average(result.hourly.relativehumidity_2m));
+            })
+        }
+        return {temp:Math.round(average(avgTemp)*100)/100,humid:Math.round(average(avgHumidity)*100)/100}
+    }
+    
     const fetchTempertureAndHumidity = async () => {
         let resp = {};
-        await fetch(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${latitude}&lon=${longitude}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
-            .then(res => res.json())
-            .then(async (result) => {
-                resp = result;
-            })
-        return resp;
+        resp = await getAvgTemperatureAndHumidity();
+        return {...resp};
     }
 
     const updateState = (latitude, longitude) => {
@@ -236,7 +258,7 @@ export default function CropRecommender() {
                             required
                             id="N"
                             name="N"
-                            label={`${t('Nitrogen')}`}
+                            label={`${t('Nitrogen')} (mg/kg) `}
                             type="number"
                         />
                         <br />
@@ -244,7 +266,7 @@ export default function CropRecommender() {
                             required
                             id="P"
                             name="P"
-                            label={`${t('Phosphorus')}`}
+                            label={`${t('Phosphorus')} (mg/kg) `}
                             type="number"
                         />
                         <br />
@@ -252,7 +274,7 @@ export default function CropRecommender() {
                             required
                             id="K"
                             name="K"
-                            label={`${t('Potassium')}`}
+                            label={`${t('Potassium')} (mg/kg) `}
                             type="number"
                         />
                         <br />
@@ -357,7 +379,7 @@ export default function CropRecommender() {
                             required
                             id="pH"
                             name="pH"
-                            label={`${t('PH')}`}
+                            label={`${t('PH')} (1-14) `}
                             type="number"
                             inputProps={{
                                 step: "any"
@@ -368,7 +390,7 @@ export default function CropRecommender() {
                             required
                             id="rainfall"
                             name="rainfall"
-                            label={`${t('Rainfall')}`}
+                            label={`${t('Rainfall')} (mm) `}
                             type="number"
                             inputProps={{
                                 step: "any"

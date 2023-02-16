@@ -58,11 +58,11 @@ export default function FertilizerRecommender() {
         if (localLan !== null || localLan !== "") {
             states.map(async(state)=>{
                 const localStateValue = await translatorFunc('en',localLan,state.name);
-                localState.push({...state,name:localStateValue});
+                localState.push({...state,name:(Array.isArray(localStateValue) && !localStateValue.length)?state.name:localStateValue});
             })
         }
         setLangStates(localState);
-        console.log(localState);
+        // console.log(localState);
     },[states])
 
     
@@ -73,7 +73,7 @@ export default function FertilizerRecommender() {
         
             values = await Promise.all(cities.map(async(city)=>{
                 const Localcity = await translatorFunc('en',localLan,city.name);
-                return {...city,name:Localcity}
+                return {...city,name:(Array.isArray(Localcity) && !Localcity.length)?city.name:Localcity}
             })).catch((err)=>{
                 return err + " Mainly due to Internet Issue! ";
             })
@@ -90,6 +90,7 @@ export default function FertilizerRecommender() {
     useEffect(()=>{
         if(data)
             makePostCall(formElements);
+
     },[data]);
 
     const handleError = (err) => {
@@ -119,14 +120,14 @@ export default function FertilizerRecommender() {
         // const fromElements = event.target.elements;
         // console.log("Data - ",data);
         const formInput = {
-            "N": fromElements["N"].value,
-            "P": fromElements["P"].value,
-            "K": fromElements["K"].value,
-            "temperature": data.main.temp,
-            "humidity": data.main.humidity,
-            "moisture": fromElements["moisture"].value,
-            "soiltype": fromElements["soilType"].value,
-            "croptype": fromElements["cropType"].value
+            "N": Number(fromElements["N"].value),
+            "P": Number(fromElements["P"].value),
+            "K": Number(fromElements["K"].value),
+            "temperature": data.temp,
+            "humidity": data.humid,
+            "moisture": Number(fromElements["moisture"].value),
+            "soiltype": Number(fromElements["soilType"].value),
+            "croptype": Number(fromElements["cropType"].value)
         }
         console.log(formInput)
 
@@ -163,19 +164,38 @@ export default function FertilizerRecommender() {
             setChooseStateCity(true)
         }
 
-        console.log(event.target.value)
+        // console.log(event.target.value)
     }
 
+    const getAvgTemperatureAndHumidity = async () =>{
+        
+        let avgTemp = [];
+        let avgHumidity=[];
+        const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
 
+        let todayDate = new Date();
+        let endDate = new Date();
+        endDate.setMonth(todayDate.getMonth()+3);
 
+        for (let index = 1; index <= 10; index++) {
+        
+            todayDate.setFullYear(todayDate.getFullYear()-1)
+            endDate.setFullYear(endDate.getFullYear()-1)
+        
+            await fetch(`https://archive-api.open-meteo.com/v1/era5?latitude=${latitude}&longitude=${longitude}&start_date=${todayDate.toISOString().slice(0, 10)}&end_date=${endDate.toISOString().slice(0, 10)}&hourly=temperature_2m,relativehumidity_2m`)
+                .then(res => res.json())
+                .then(async (result) => {
+                    avgTemp.push(average(result.hourly.temperature_2m));
+                    avgHumidity.push(average(result.hourly.relativehumidity_2m));
+            })
+        }
+        return {temp:Math.round(average(avgTemp)*100)/100,humid:Math.round(average(avgHumidity)*100)/100}
+    }
+    
     const fetchTempertureAndHumidity = async () => {
         let resp = {};
-        await fetch(`${process.env.REACT_APP_WEATHER_API_URL}/weather/?lat=${latitude}&lon=${longitude}&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
-            .then(res => res.json())
-            .then(async (result) => {
-                resp = result;
-            })
-        return resp;
+        resp = await getAvgTemperatureAndHumidity();
+        return {...resp};
     }
 
     const updateState = (latitude, longitude) => {
@@ -208,7 +228,7 @@ export default function FertilizerRecommender() {
 
     const handleStateChange = (event) => {
         setState(event.target.value)
-        console.log(" state changed ");
+        // console.log(" state changed ");
         let checkStates = []
         LangStates.length != 0 ? checkStates = LangStates : checkStates = states
        
@@ -251,7 +271,7 @@ export default function FertilizerRecommender() {
                             required
                             id="N"
                             name="N"
-                            label={`${t('Nitrogen')}`}
+                            label={`${t('Nitrogen')} (mg/kg) `}
                             type="number"
                         />
                         <br />
@@ -259,7 +279,7 @@ export default function FertilizerRecommender() {
                             required
                             id="P"
                             name="P"
-                            label={`${t('Phosphorus')}`}
+                            label={`${t('Phosphorus')} (mg/kg)`}
                             type="number"
                         />
                         <br />
@@ -267,7 +287,7 @@ export default function FertilizerRecommender() {
                             required
                             id="K"
                             name="K"
-                            label={`${t('Potassium')}`}
+                            label={`${t('Potassium')} (mg/kg)`}
                             type="number"
                         />
                         <br />
@@ -351,11 +371,11 @@ export default function FertilizerRecommender() {
                                     {   
                                         LangCities.length != 0 ?
                                             LangCities.map((c) => {
-                                                console.log(c);
+                                                // console.log(c);
                                                 return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
                                             }) : 
                                             cities.map((c) => {
-                                                console.log(c);
+                                                // console.log(c);
                                                 return <MenuItem value={c.name} key={c.name}>{c.name}</MenuItem>
                                             })
                                     }
@@ -370,7 +390,7 @@ export default function FertilizerRecommender() {
                             required
                             id="moisture"
                             name="moisture"
-                            label={`${t('Moisture')}`}
+                            label={`${t('Moisture')} (g/m³)`}
                             type="number"
                             inputProps={{
                                 step: "any"
