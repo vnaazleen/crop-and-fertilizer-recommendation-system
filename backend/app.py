@@ -4,12 +4,16 @@ from flask_cors import CORS
 import pickle
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+import numpy as np
 
 app = Flask(__name__)
 CORS(app)
 
+crop_scaler = pickle.load(open('./model/crop_scaler.pkl','rb'))
 model = pickle.load(open('./model/crop_recommendation_model.pkl', 'rb'))
-fertilizer_recommendation_model = pickle.load(open('./model/fertilizer_recommendation_model.pkl','rb'))
+
+fertilizer_scaler = pickle.load(open('./model/fertilizer_scaler.pkl','rb'))
+fertilizer_recommendation_model = pickle.load(open('./model/fertilizer_recommendation_model_new.pkl','rb'))
 
 
 @app.route('/crops', methods = ['POST'])
@@ -23,7 +27,7 @@ def cropRecommender():
     pH = data['pH']
     rainfall = data['rainfall']
     features = [int(N), int(P), int(K), float(temperature), float(humidity), float(pH), float(rainfall)]
-    label = model.predict([features])
+    label = model.predict(crop_scaler.transform([features]))
     return jsonify({"crop": label[0]})
 
 @app.route('/fertilizer', methods = ['POST'])
@@ -40,11 +44,13 @@ def fertilizerRecommender():
     croptype = data['croptype']
     
     features = [[int(temperature),int(humidity),int(moisture),int(soiltype),int(croptype),int(N),int(K),int(P)]]
-    finalfeatures = np.array(features)
-    print("final features- ",finalfeatures)
-    label = fertilizer_recommendation_model.predict(finalfeatures)
+    # finalfeatures = np.array(features)
+    print("final features- ",fertilizer_scaler.transform(features))
     
-    return jsonify({"fertilizer": int(label[0])})
+    # label = fertilizer_recommendation_model_old.predict(finalfeatures)
+    predictions = fertilizer_recommendation_model.predict(fertilizer_scaler.transform(features))
+    print(predictions[0])
+    return jsonify({"fertilizer": int(predictions[0])})
 
 
 app.after_request
