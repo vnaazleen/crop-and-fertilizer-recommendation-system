@@ -1,41 +1,82 @@
-import './Home.css'
+import "./Home.css";
 
-import { Button } from '@mui/material';
-import { useTranslation } from 'react-i18next'
+import {
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Grid,
+  Typography,
+} from "@mui/material";
+import { useTranslation } from "react-i18next";
+import Menu from "./Menu";
+import CarouselComponent from "./CarouselComponent";
+import { Link } from "react-router-dom";
 
 export default function Home() {
-    const { t } = useTranslation();
-    return (
-        <div className="Home">
-            <div className='Buttons'>
-            <Button 
-             sx={{ color: 'white', 
-                   borderColor: 'white',
-                   fontSize:'20px',
-                   background:'#252525a6',
-                   "&:hover": { borderColor: "green", backgroundColor: "green" } 
-                }}
-             className="Btn1" 
-             variant="outlined"
-             href="/crop-recommender"
-            >
-                <b>{t('Crop Recommender')}</b>
-            </Button>
-                &nbsp; &nbsp;
-            <Button 
-             sx={{ color: 'white', 
-                    borderColor: 'white',
-                    fontSize:'20px',
-                    background:'#252525a6',
-                    "&:hover": { borderColor: "green", backgroundColor: "green" } 
-                }}
-             className="Btn1" 
-             variant="outlined"
-             href="/fertilizer-recommender"
-            >
-                <b>{t('Fertilizer Recommender')}</b>
-            </Button>
-            </div>
-        </div>
-    )
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <CarouselComponent />
+      <Grid
+        container
+        spacing={4}
+        justifyContent={"center"}
+        alignItems={"center"}
+        style={{height:'60vh'}}
+        // sx={{ minHeight: "60vh", margin: "0" }}
+      >
+        <Grid item xs={6} sm={4} md={3} key="crop" sx={{}}>
+          <Card sx={{ maxWidth: 345 }}>
+            <Link to="/crop-recommender" style={{textDecoration:'none',textAlign:'center'}} justifyContent="center">
+              <CardActionArea>
+                <CardMedia
+                  component="img"
+                  height="250"
+                  image="/icon.png"
+                  alt="green iguana"
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {t('Crop Recommender')}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {/* Lizards are a widespread group of squamate reptiles, with
+                    over 6,000 species, ranging across all continents except
+                    Antarctica */}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Link>
+          </Card>
+        </Grid>
+        <Grid item xs={6} sm={4} md={3} key="fertilizer" sx={{}}>
+          <Card sx={{ maxWidth: 345 }} >
+            <Link to="/fertilizer-recommender" style={{textDecoration:'none',textAlign:'center'}}>
+              <CardActionArea>
+                <CardMedia
+                  component="img"
+                  height="250"
+                  image="/icon.png"
+                  alt="green iguana"
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {t('Fertilizer Recommender')}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {/* Lizards are a widespread group of squamate reptiles, with
+                    over 6,000 species, ranging across all continents except
+                    Antarctica */}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Link>
+          </Card>
+        </Grid>
+      </Grid>
+    </>
+  );
 }

@@ -6,12 +6,15 @@ import Geolocation from './Components/Geolocation/Geolocation';
 import FertilizerRecommender from './Components/FertilizerRecommender/FertilizerRecommender';
 import LanguageSelector from './LanguageSelector';
 import { LoadingPage } from './Components/LoadingPage';
+import Menu from './Components/Home/Menu';
+import Footer from './Components/Home/Footer';
 // import translate from 'google-translate-api';
 
 function App() {
 
   return (
     <div>
+      <Menu/>
       <Routes>
         <Route path={`/`} element={<Home />} />
         <Route path={`/crop-recommender`} element={<CropRecommender />} />
@@ -19,6 +22,7 @@ function App() {
         <Route path="/geolocation" element={<Geolocation />} />
       </Routes>
       <LanguageSelector/>
+      <Footer/>
     </div>
   );
 }

@@ -52,13 +52,13 @@ function LanguageSelector() {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{position:'relative'}}>
       <FormControl
         className="selector"
         sx={{
-          position: "absolute",
+          position: "fixed",
           bottom: "5%",
-          right: "5%",
+          right: "10%",
           width: "12rem",
           fontSize: "2rem",
           color: "white",
