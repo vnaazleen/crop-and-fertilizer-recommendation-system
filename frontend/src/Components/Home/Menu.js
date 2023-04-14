@@ -25,7 +25,7 @@ const Menu = () => {
   const [localText, setLocalText] = React.useState([]);
 
   const texts = [
-    "Crop and Fertilizer Recommendation System",
+    " 🌾 FarmEasy",
     "Home",
     "Crop Recommender",
     "Fertilizer Recommender",
