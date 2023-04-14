@@ -7,8 +7,8 @@ const Footer = () => {
 
   const texts = [
     "Crop and Fertilizer Recommendation System",
-    "Predict Crop/Fertilizer",
-    "Get Lastest Agriculture News",
+    "Crop Recommender",
+    "Fertilizer Recommender",
   ];
 
   const localLan = localStorage.getItem("i18nextLng");
@@ -58,7 +58,7 @@ const Footer = () => {
           width: "100%",
           height: "auto",
           color: "#fff",
-          backgroundColor: "#01497C",
+          backgroundColor:"green",
           paddingTop: "1rem",
           paddingBottom: "1rem",
         }}

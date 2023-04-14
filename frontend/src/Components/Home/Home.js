@@ -35,17 +35,14 @@ export default function Home() {
                 <CardMedia
                   component="img"
                   height="250"
-                  image="/icon.png"
-                  alt="green iguana"
+                  image="/crop_img.jpeg"
+                  alt="Crop Recommender"
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
                     {t('Crop Recommender')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {/* Lizards are a widespread group of squamate reptiles, with
-                    over 6,000 species, ranging across all continents except
-                    Antarctica */}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -59,17 +56,14 @@ export default function Home() {
                 <CardMedia
                   component="img"
                   height="250"
-                  image="/icon.png"
-                  alt="green iguana"
+                  image="/fertilizer_img.jpeg"
+                  alt="Fertilizer Recommender"
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
                     {t('Fertilizer Recommender')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {/* Lizards are a widespread group of squamate reptiles, with
-                    over 6,000 species, ranging across all continents except
-                    Antarctica */}
                   </Typography>
                 </CardContent>
               </CardActionArea>

@@ -12,14 +12,14 @@ const CarouselComponent = () => {
     },
     {
       image: "/c2.jpg",
-      heading: "NEXTUP: Fully integreted API",
+      heading: "Fully integreted API",
       description:
-        "Get ALL Values Filled with a single click like Rainfall, Moisture",
+        "Get All Values Filled with a single click like Temperature and Humidity",
     },
     {
       image: "/c3.png",
-      heading: "NEXTUP: News Feed About Agriculture",
-      description: "Get ALL latest news feeds related to Agriculture",
+      heading: "News Feed About Agriculture",
+      description: "Get All latest news feeds related to Agriculture",
     },
   ];
 
@@ -109,7 +109,7 @@ const CarouselComponent = () => {
                     alignItems: "center",
                   }}
                 >
-                  <h2 style={{ color: "white", textAlign: "center" }}>
+                  <h2 style={{ color: "white", textAlign: "center", marginBottom: "20px" }}>
                     {item.heading}
                   </h2>
                   <p style={{ color: "white", textAlign: "center" }}>

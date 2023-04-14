@@ -81,7 +81,7 @@ const Menu = () => {
       <Guide guideOpen={guideOpen} setGuideOpen={setGuideOpen} />
       <AppBar
         component="nav"
-        sx={{ position: "relative", background: "#01497C" }}
+        sx={{ position: "relative", background: "green" }}
       >
         <Toolbar>
           <IconButton
